@@ -5,7 +5,7 @@
 //    reported rather than silently dropping the tool.
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { uniqueToolName, toolName } from '../dsh-mcp-hub/lib/tools.js'
+import { uniqueToolName, toolName } from '../lib/tools.js'
 
 const results = []
 function check(name, ok, detail = '') {
@@ -15,7 +15,7 @@ function check(name, ok, detail = '') {
 
 let captured
 const fakeWindow = { __ModuleLoader__: { load: (definition) => { captured = definition } } }
-const source = readFileSync(fileURLToPath(new URL('../dsh-mcp-hub/client.js', import.meta.url)), 'utf8')
+const source = readFileSync(fileURLToPath(new URL('../client.js', import.meta.url)), 'utf8')
 new Function('window', source)(fakeWindow)
 
 const stubReact = {

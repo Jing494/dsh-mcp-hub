@@ -4,7 +4,7 @@ import { spawn } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import { existsSync } from 'node:fs'
-import { connectServer, contentToText } from '../dsh-mcp-hub/lib/connect.js'
+import { connectServer, contentToText } from '../lib/connect.js'
 
 // Spawning the fixture needs a real node binary. On Termux/Android process.execPath is
 // the dynamic linker, so DSH_NODE or the Termux prefix wins when either is set.

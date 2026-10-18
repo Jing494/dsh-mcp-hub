@@ -25,10 +25,10 @@ This package is not on npm yet; install it from a checkout:
 
 ```sh
 # from the Harness plugin manager, with the absolute package directory
-plugin_manager install_bundle /path/to/dsh-mcp-hub/dsh-mcp-hub
+plugin_manager install_bundle /path/to/dsh-mcp-hub
 
 # or with the CLI
-dsh plugin add /path/to/dsh-mcp-hub/dsh-mcp-hub
+dsh plugin add /path/to/dsh-mcp-hub
 ```
 
 Then restart DSH once. The **MCP** entry appears in Settings (between *Agent presets* and *Undo*).
@@ -77,13 +77,13 @@ DSH_MCP_SDK_BASE=/path/to/@modelcontextprotocol/sdk/dist/esm \
   node --import ./test/sdk-hook.mjs test/connect.test.mjs
 ```
 
-Layout: `dsh-mcp-hub/` is the plugin (`index.js` host half, `client.js` browser half, `lib/` transports and tool projection), `mock/` is a dependency-free MCP fixture, `tools/` holds the uninstall helper.
+The repository root **is** the plugin package (`index.js` host half, `client.js` browser half, `lib/` transports and tool projection), so it installs directly from a GitHub URL. `mock/` is a dependency-free MCP fixture and `tools/` holds the uninstall helper.
 
 ## Releasing
 
 Releases are automated and gated on CI — no personal access token is stored anywhere:
 
-1. bump `version` in `dsh-mcp-hub/package.json`
+1. bump `version` in `package.json`
 2. push to `main`
 3. the `test` matrix (node 22 + 24) must pass; then the `release` job packs the tarball, writes `SHA256SUMS`, and creates the tag plus the GitHub release
 

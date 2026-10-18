@@ -1,6 +1,6 @@
 {
   "name": "dsh-mcp-hub",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "type": "module",
   "description": "Remote MCP servers for DeepSeek Harness: a settings page, connection management, and mcp__<server>__<tool> registration in one plugin",
   "keywords": [

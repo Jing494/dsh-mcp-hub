@@ -1,6 +1,6 @@
 // Smoke test for the MCP tool adapter: definition shape, naming, and render.
-import { createToolDefinition, toolName, uniqueToolName } from '../dsh-mcp-hub/lib/tools.js'
-import { contentToText } from '../dsh-mcp-hub/lib/connect.js'
+import { createToolDefinition, toolName, uniqueToolName } from '../lib/tools.js'
+import { contentToText } from '../lib/connect.js'
 
 const results = []
 function check(name, ok, detail = '') {

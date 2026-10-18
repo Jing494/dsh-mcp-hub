@@ -11,7 +11,7 @@ function check(name, ok, detail = '') {
 
 let captured
 const fakeWindow = { __ModuleLoader__: { load: (definition) => { captured = definition } } }
-const source = readFileSync(fileURLToPath(new URL('../dsh-mcp-hub/client.js', import.meta.url)), 'utf8')
+const source = readFileSync(fileURLToPath(new URL('../client.js', import.meta.url)), 'utf8')
 new Function('window', source)(fakeWindow)
 
 if (captured === undefined) {

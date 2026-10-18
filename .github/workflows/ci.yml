@@ -33,7 +33,7 @@ jobs:
       - name: Syntax check
         run: |
           set -euo pipefail
-          for file in dsh-mcp-hub/index.js dsh-mcp-hub/client.js dsh-mcp-hub/lib/*.js \
+          for file in index.js client.js lib/*.js \
                       mock/*.mjs test/*.mjs tools/*.mjs; do
             node --check "$file"
           done
@@ -75,7 +75,7 @@ jobs:
         id: meta
         run: |
           set -euo pipefail
-          version=$(node -p "require('./dsh-mcp-hub/package.json').version")
+          version=$(node -p "require('./package.json').version")
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "tag=v$version" >> "$GITHUB_OUTPUT"
           echo "package version: $version"
@@ -97,7 +97,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p dist
-          (cd dsh-mcp-hub && npm pack --pack-destination ../dist)
+          npm pack --pack-destination dist
           cd dist
           # the packed name must match the version we are about to tag
           ls "dsh-mcp-hub-${{ steps.meta.outputs.version }}.tgz" >/dev/null

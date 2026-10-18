@@ -25,10 +25,10 @@
 
 ```sh
 # 插件管理器（绝对路径指向包目录）
-plugin_manager install_bundle /path/to/dsh-mcp-hub/dsh-mcp-hub
+plugin_manager install_bundle /path/to/dsh-mcp-hub
 
 # 或用 CLI
-dsh plugin add /path/to/dsh-mcp-hub/dsh-mcp-hub
+dsh plugin add /path/to/dsh-mcp-hub
 ```
 
 然后重启一次 DSH。设置页里会出现 **MCP**（在「Agent 预设」和「快照」之间）。
@@ -78,14 +78,14 @@ DSH_MCP_SDK_BASE=/path/to/@modelcontextprotocol/sdk/dist/esm \
   node --import ./test/sdk-hook.mjs test/connect.test.mjs
 ```
 
-目录：`dsh-mcp-hub/` 是插件本体（`index.js` host 半、`client.js` 浏览器半、`lib/` 传输与工具投影），
+仓库根目录**就是**插件包（`index.js` host 半、`client.js` 浏览器半、`lib/` 传输与工具投影），所以可以直接用 GitHub 地址安装。
 `mock/` 是无依赖的 MCP 夹具，`tools/` 放卸载清理脚本。
 
 ## 发版
 
 发版已自动化，且**以 CI 为闸门**——不需要、也不存放任何个人 token：
 
-1. 改 `dsh-mcp-hub/package.json` 里的 `version`
+1. 改 `package.json` 里的 `version`
 2. 推到 `main`
 3. `test` 矩阵（node 22 + 24）必须通过；随后 `release` 作业打包 tarball、生成 `SHA256SUMS`，并创建 tag 与 GitHub release
 
