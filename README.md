@@ -83,7 +83,7 @@ Layout: `dsh-mcp-hub/` is the plugin (`index.js` host half, `client.js` browser 
 - **Remote only.** No `stdio`, no local processes.
 - **No OAuth.** Header tokens only, and they are stored in the profile patch in plaintext (same as upstream).
 - **Host code changes need a DSH restart.** The HMR plugin watches config files, not plugin modules; client-only changes only need a page reload.
-- **Uninstall needs one extra step:** `remove_bundle` leaves the config row and the `link:` symlinks behind. Run `node tools/uninstall-cleanup.mjs` after removing the bundle.
+- **Uninstall needs one extra step, but it is checked:** `remove_bundle` (or `dsh plugin remove`) clears the dependency and the bundle selection and leaves the `- id: mcp-hub` config row plus the `link:` symlink behind. `node tools/uninstall.mjs` refuses to run while the plugin is still installed, then removes both leftovers and verifies the profile is clean. `--dry-run`, `--keep-config` (keep the server list for a reinstall) and `--run-cli` are supported.
 - Tool-name collisions are not renamed automatically.
 
 ## License

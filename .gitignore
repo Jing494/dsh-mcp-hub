@@ -13,3 +13,4 @@ check-boot.mjs
 inspect-boot.mjs
 .token.tmp
 dist/
+.fixtures/

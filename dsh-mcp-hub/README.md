@@ -43,6 +43,6 @@ Then restart DSH once; the **MCP** entry appears in Settings.
 
 - Remote transports only: `streamable-http`, legacy `sse`, and `auto` (streamable first, SSE on failure). No `stdio`.
 - Header tokens are stored in the profile patch in plaintext, same as upstream.
-- `remove_bundle` does not clean up the config row or the `link:` symlinks; use `tools/uninstall-cleanup.mjs` from the repository.
+- `remove_bundle` does not clean up the config row or the `link:` symlink; `node tools/uninstall.mjs` from the repository checks the removal, cleans both, and verifies the profile is clean.
 
 MIT licensed.
