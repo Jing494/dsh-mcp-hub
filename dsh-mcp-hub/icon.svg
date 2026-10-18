@@ -1,0 +1,18 @@
+<svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="MCP Hub">
+  <g stroke="url(#hub)" stroke-width="2.6" stroke-linecap="round">
+    <path d="M18 12.4V9.4" />
+    <path d="M23.4 22.8L26.2 24" />
+    <path d="M12.6 22.8L9.8 24" />
+  </g>
+  <circle cx="18" cy="19" r="6.6" fill="url(#hub)" />
+  <circle cx="18" cy="6.2" r="3.2" fill="#4A65E8" />
+  <circle cx="29.6" cy="24.6" r="3.2" fill="#4A65E8" />
+  <circle cx="6.4" cy="24.6" r="3.2" fill="#4A65E8" />
+  <circle cx="18" cy="19" r="2.5" fill="#FFFFFF" fill-opacity="0.95" />
+  <defs>
+    <linearGradient id="hub" x1="18" y1="6" x2="18" y2="30" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7AC2FF" />
+      <stop offset="1" stop-color="#4A65E8" />
+    </linearGradient>
+  </defs>
+</svg>

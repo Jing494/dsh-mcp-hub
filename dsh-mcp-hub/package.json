@@ -1,0 +1,40 @@
+{
+  "name": "dsh-mcp-hub",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Remote MCP servers: settings page, connection management, and tool registration in one package (host half + browser half)",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "lib/*.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg"
+  ],
+  "peerDependencies": {
+    "@deepseek-ai/schemastery": "~3.18.5",
+    "@deepseek-ai/cordis": "~4.0.5",
+    "@deepseek-ai/dsh-settings": "^0.2.1-rc.2",
+    "@modelcontextprotocol/sdk": "^1.30.0"
+  },
+  "dsh": {
+    "bundle": { "patch": "./cordis.patch.yml" },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-settings",
+        "@deepseek-ai/dsh-api-remotes"
+      ]
+    },
+    "runtime": "host"
+  }
+}

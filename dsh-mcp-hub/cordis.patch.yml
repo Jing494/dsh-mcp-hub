@@ -1,0 +1,4 @@
+- insert:
+    - id: mcp-hub
+      name: dsh-mcp-hub
+      config: {}

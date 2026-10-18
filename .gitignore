@@ -1,0 +1,14 @@
+# local development artifacts, not part of the published plugin
+node_modules/
+probe/
+probe2/
+backup-*.yml
+HANDOFF.md
+FINDINGS-P1.md
+
+# scratch
+*.log
+.check.mjs
+check-boot.mjs
+inspect-boot.mjs
+.token.tmp

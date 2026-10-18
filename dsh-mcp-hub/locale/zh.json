@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "MCP Hub",
+    "description": "添加远程 MCP 服务器，测试连接、列出工具，并手动调用一次。"
+  }
+}
