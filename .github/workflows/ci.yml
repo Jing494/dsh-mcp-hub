@@ -52,3 +52,67 @@ jobs:
           set -euo pipefail
           DSH_MCP_SDK_BASE="$PWD/node_modules/@modelcontextprotocol/sdk/dist/esm" \
             node mock/selftest.mjs
+
+  release:
+    name: release
+    # Publishing is gated on the whole test matrix: a red suite never ships.
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      # the only credential used: GitHub's own per-run token. No PAT, no secrets.
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # tags must be visible to detect an existing release
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Read the package version
+        id: meta
+        run: |
+          set -euo pipefail
+          version=$(node -p "require('./dsh-mcp-hub/package.json').version")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=v$version" >> "$GITHUB_OUTPUT"
+          echo "package version: $version"
+
+      - name: Skip when that version is already released
+        id: check
+        run: |
+          set -euo pipefail
+          tag="${{ steps.meta.outputs.tag }}"
+          if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+            echo "release=false" >> "$GITHUB_OUTPUT"
+            echo "$tag already exists — nothing to publish. Bump the version to release."
+          else
+            echo "release=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build the package
+        if: steps.check.outputs.release == 'true'
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          (cd dsh-mcp-hub && npm pack --pack-destination ../dist)
+          cd dist
+          # the packed name must match the version we are about to tag
+          ls "dsh-mcp-hub-${{ steps.meta.outputs.version }}.tgz" >/dev/null
+          sha256sum ./*.tgz > SHA256SUMS
+          cat SHA256SUMS
+
+      - name: Publish the release
+        if: steps.check.outputs.release == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="${{ steps.meta.outputs.tag }}"
+          gh release create "$tag" \
+            --target "$GITHUB_SHA" \
+            --title "dsh-mcp-hub ${tag#v}" \
+            --generate-notes \
+            dist/*.tgz dist/SHA256SUMS

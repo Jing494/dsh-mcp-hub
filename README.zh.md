@@ -81,6 +81,16 @@ DSH_MCP_SDK_BASE=/path/to/@modelcontextprotocol/sdk/dist/esm \
 目录：`dsh-mcp-hub/` 是插件本体（`index.js` host 半、`client.js` 浏览器半、`lib/` 传输与工具投影），
 `mock/` 是无依赖的 MCP 夹具，`tools/` 放卸载清理脚本。
 
+## 发版
+
+发版已自动化，且**以 CI 为闸门**——不需要、也不存放任何个人 token：
+
+1. 改 `dsh-mcp-hub/package.json` 里的 `version`
+2. 推到 `main`
+3. `test` 矩阵（node 22 + 24）必须通过；随后 `release` 作业打包 tarball、生成 `SHA256SUMS`，并创建 tag 与 GitHub release
+
+该版本已存在 tag 时 release 作业会跳过，所以普通提交不会发版。它用的是 GitHub 每次运行临时生成的 `GITHUB_TOKEN`。
+
 ## 已知限制
 
 - **只支持远程**：没有 `stdio`、不起本地进程。

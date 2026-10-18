@@ -79,6 +79,16 @@ DSH_MCP_SDK_BASE=/path/to/@modelcontextprotocol/sdk/dist/esm \
 
 Layout: `dsh-mcp-hub/` is the plugin (`index.js` host half, `client.js` browser half, `lib/` transports and tool projection), `mock/` is a dependency-free MCP fixture, `tools/` holds the uninstall helper.
 
+## Releasing
+
+Releases are automated and gated on CI — no personal access token is stored anywhere:
+
+1. bump `version` in `dsh-mcp-hub/package.json`
+2. push to `main`
+3. the `test` matrix (node 22 + 24) must pass; then the `release` job packs the tarball, writes `SHA256SUMS`, and creates the tag plus the GitHub release
+
+If that version is already tagged the release job skips, so ordinary commits never publish. It authenticates with GitHub's own per-run `GITHUB_TOKEN`.
+
 ## Limitations
 
 - **Remote only.** No `stdio`, no local processes.

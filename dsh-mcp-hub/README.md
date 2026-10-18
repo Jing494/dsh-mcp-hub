@@ -10,7 +10,7 @@ Repository, docs and Chinese README: <https://github.com/Jing494/dsh-mcp-hub>
 
 ```sh
 dsh plugin add dsh-mcp-hub          # from npm, when published
-dsh plugin add ./dsh-mcp-hub-0.2.1.tgz   # from the release tarball
+dsh plugin add ./dsh-mcp-hub-0.3.0.tgz   # from the release tarball
 ```
 
 Then restart DSH once; the **MCP** entry appears in Settings.
