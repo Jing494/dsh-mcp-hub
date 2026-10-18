@@ -1,0 +1,53 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: node ${{ matrix.node }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # both ends of the range the plugin declares in engines.node
+        node: ['22', '24']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      # The tests load the MCP client SDK that Harness ships as a peer dependency.
+      # test/sdk-resolve.mjs resolves it from here when no explicit base is given.
+      - name: Install MCP SDK for the standalone tests
+        run: npm install --no-save --no-package-lock @modelcontextprotocol/sdk@^1.30.0
+
+      - name: Syntax check
+        run: |
+          set -euo pipefail
+          for file in dsh-mcp-hub/index.js dsh-mcp-hub/client.js dsh-mcp-hub/lib/*.js \
+                      mock/*.mjs test/*.mjs tools/*.mjs; do
+            node --check "$file"
+          done
+
+      - name: Unit tests
+        run: |
+          set -euo pipefail
+          node --import ./test/sdk-hook.mjs test/connect.test.mjs
+          node --import ./test/sdk-hook.mjs test/tools.test.mjs
+          node test/diagnose.test.mjs
+          node test/render.test.mjs
+
+      - name: Mock fixture self-test
+        run: |
+          set -euo pipefail
+          DSH_MCP_SDK_BASE="$PWD/node_modules/@modelcontextprotocol/sdk/dist/esm" \
+            node mock/selftest.mjs

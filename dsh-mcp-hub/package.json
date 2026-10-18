@@ -1,9 +1,30 @@
 {
   "name": "dsh-mcp-hub",
   "version": "0.2.0",
-  "private": true,
   "type": "module",
-  "description": "Remote MCP servers: settings page, connection management, and tool registration in one package (host half + browser half)",
+  "description": "Remote MCP servers for DeepSeek Harness: a settings page, connection management, and mcp__<server>__<tool> registration in one plugin",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "mcp",
+    "model-context-protocol",
+    "sse",
+    "streamable-http"
+  ],
+  "homepage": "https://github.com/Jing494/dsh-mcp-hub#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jing494/dsh-mcp-hub.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Jing494/dsh-mcp-hub/issues"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0",
+    "dsh": ">=0.2.1-rc.2 <0.3.0"
+  },
   "exports": {
     ".": "./index.js",
     "./client": "./client.js",
