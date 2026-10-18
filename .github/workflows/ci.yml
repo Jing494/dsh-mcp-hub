@@ -45,6 +45,7 @@ jobs:
           node --import ./test/sdk-hook.mjs test/tools.test.mjs
           node test/diagnose.test.mjs
           node test/render.test.mjs
+          node test/secrets.test.mjs
 
       - name: Mock fixture self-test
         run: |

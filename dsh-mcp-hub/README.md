@@ -10,7 +10,7 @@ Repository, docs and Chinese README: <https://github.com/Jing494/dsh-mcp-hub>
 
 ```sh
 dsh plugin add dsh-mcp-hub          # from npm, when published
-dsh plugin add ./dsh-mcp-hub-0.2.0.tgz   # from the release tarball
+dsh plugin add ./dsh-mcp-hub-0.2.1.tgz   # from the release tarball
 ```
 
 Then restart DSH once; the **MCP** entry appears in Settings.
@@ -44,5 +44,7 @@ Then restart DSH once; the **MCP** entry appears in Settings.
 - Remote transports only: `streamable-http`, legacy `sse`, and `auto` (streamable first, SSE on failure). No `stdio`.
 - Header tokens are stored in the profile patch in plaintext, same as upstream.
 - `remove_bundle` does not clean up the config row or the `link:` symlink; `node tools/uninstall.mjs` from the repository checks the removal, cleans both, and verifies the profile is clean.
+- Tool-name collisions are renamed (`_2`, `_3`, …) and surfaced in the panel.
+- Header secrets are plaintext unless you write a Loader expression (`!!js \`Bearer \${process.env.MCP_TOKEN}\``); the panel preserves those expressions when it writes.
 
 MIT licensed.

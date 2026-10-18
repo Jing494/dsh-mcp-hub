@@ -1,5 +1,5 @@
 // Smoke test for the MCP tool adapter: definition shape, naming, and render.
-import { createToolDefinition, toolName } from '../dsh-mcp-hub/lib/tools.js'
+import { createToolDefinition, toolName, uniqueToolName } from '../dsh-mcp-hub/lib/tools.js'
 import { contentToText } from '../dsh-mcp-hub/lib/connect.js'
 
 const results = []
@@ -83,6 +83,18 @@ try {
 }
 check('failing call throws with server and tool context', failure !== null && /mock\.add/.test(String(failure.message)), String(failure && failure.message))
 check('failing call notifies the connection', reported !== null, String(reported && reported.message))
+
+// M2+: a natural name that another server or plugin already owns is suffixed,
+// never dropped, and an exhausted search reports instead of registering.
+const taken = new Set(['mcp__a__x', 'mcp__a__x_2'])
+check('free name is used as-is', uniqueToolName('mcp__a__y', (n) => taken.has(n)) === 'mcp__a__y')
+check('taken name gets the first free suffix', uniqueToolName('mcp__a__x', (n) => taken.has(n)) === 'mcp__a__x_3')
+check('exhausted search returns undefined', uniqueToolName('mcp__a__x', () => true, 3) === undefined)
+check('name override reaches the definition', createToolDefinition(
+  { server: { name: 'a' }, client: entry.client },
+  { name: 'x', inputSchema: { type: 'object' } },
+  'mcp__a__x_2',
+).name === 'mcp__a__x_2')
 
 const failed = results.filter((r) => !r.ok).length
 console.log(`\n${results.length - failed}/${results.length} passed`)

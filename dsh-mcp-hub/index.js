@@ -12,7 +12,7 @@
  */
 import z from '@deepseek-ai/schemastery'
 import { connectServer, contentToText, errorText } from './lib/connect.js'
-import { createToolDefinition } from './lib/tools.js'
+import { createToolDefinition, toolName, uniqueToolName } from './lib/tools.js'
 
 export const name = 'dsh-mcp-hub'
 export const inject = ['settings', 'tools']
@@ -183,12 +183,22 @@ export function apply(ctx, config) {
     }
 
     if (keepTools) {
+      entry.aliases = []
       for (const tool of visible) {
+        const natural = toolName(server.name, tool.name)
+        // Another server (or another plugin) may already own the natural name.
+        // Rename instead of dropping, and record the rename for the panel.
+        const registered = uniqueToolName(natural, (candidate) => ctx.tools.get(candidate) !== undefined)
+        if (registered === undefined) {
+          entry.registrationError = `mcp-hub: no free tool name for ${natural} (all ${20} suffixes are taken)`
+          continue
+        }
+        if (registered !== natural) entry.aliases.push({ tool: tool.name, natural, registered })
         try {
-          const dispose = ctx.tools.register(createToolDefinition(entry, tool))
+          const dispose = ctx.tools.register(createToolDefinition(entry, tool, registered))
           entry.disposers.push(dispose)
         } catch (error) {
-          // A duplicate name must be visible, not silently dropped.
+          // A registration failure must be visible, not silently dropped.
           entry.registrationError = errorText(error)
         }
       }
@@ -278,6 +288,8 @@ export function apply(ctx, config) {
                   latencyMs: entry?.latencyMs,
                   protocolVersion: entry?.protocolVersion,
                   serverInfo: entry?.serverInfo,
+                  aliases: entry?.aliases ?? [],
+                  registrationError: entry?.registrationError,
                   tools: (entry?.tools ?? []).map((tool) => ({
                     name: tool.name,
                     description: tool.description ?? '',
@@ -306,6 +318,8 @@ export function apply(ctx, config) {
               serverInfo: result.serverInfo,
               attempts: result.attempts ?? [],
               error: result.error,
+              aliases: connections.get(server.id)?.aliases ?? [],
+              registrationError: connections.get(server.id)?.registrationError,
               tools: (connections.get(server.id)?.tools ?? []).map((tool) => ({
                 name: tool.name,
                 description: tool.description ?? '',

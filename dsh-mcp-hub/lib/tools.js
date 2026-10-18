@@ -15,14 +15,15 @@ export function toolName(serverName, rawName) {
  * Build one Harness tool definition bound to a live MCP client.
  * @param entry - the connected server state.
  * @param tool - the MCP tool description from `tools/list`.
+ * @param nameOverride - registered name when the natural name is already taken.
  */
-export function createToolDefinition(entry, tool) {
+export function createToolDefinition(entry, tool, nameOverride) {
   const serverName = entry.server?.name ?? entry.name
   if (typeof serverName !== 'string' || serverName === '') {
     throw new Error('mcp-hub: refusing to register a tool without a server name')
   }
   return {
-    name: toolName(serverName, tool.name),
+    name: nameOverride ?? toolName(serverName, tool.name),
     description: tool.description || `MCP tool "${tool.name}" from server "${serverName}"`,
     parameters: tool.inputSchema ?? { type: 'object', properties: {} },
     // A hung server must not hold the model's turn open: the registry enforces
@@ -61,4 +62,22 @@ export function createToolDefinition(entry, tool) {
 /** Failure text for a tool call that the connection could not complete. */
 export function callFailure(error) {
   return `MCP call failed: ${errorText(error)}`
+}
+
+/**
+ * Pick a free tool name: the natural one when nothing owns it, otherwise the
+ * first free `_2`, `_3`, … suffix. A name that cannot be freed within `limit`
+ * attempts returns undefined so the caller reports it instead of silently
+ * dropping a tool.
+ * @param base - the natural name, e.g. `mcp__weather__get`.
+ * @param isTaken - whether the registry already exposes that name.
+ * @param limit - highest suffix to try.
+ */
+export function uniqueToolName(base, isTaken, limit = 20) {
+  if (!isTaken(base)) return base
+  for (let suffix = 2; suffix <= limit; suffix += 1) {
+    const candidate = `${base}_${suffix}`
+    if (!isTaken(candidate)) return candidate
+  }
+  return undefined
 }

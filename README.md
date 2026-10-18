@@ -64,6 +64,7 @@ node --import ./test/sdk-hook.mjs test/connect.test.mjs
 node --import ./test/sdk-hook.mjs test/tools.test.mjs
 node test/diagnose.test.mjs
 node test/render.test.mjs
+node test/secrets.test.mjs
 
 # the fixture itself, both transports
 cd mock && PORT=8731 node server.mjs
@@ -84,7 +85,8 @@ Layout: `dsh-mcp-hub/` is the plugin (`index.js` host half, `client.js` browser 
 - **No OAuth.** Header tokens only, and they are stored in the profile patch in plaintext (same as upstream).
 - **Host code changes need a DSH restart.** The HMR plugin watches config files, not plugin modules; client-only changes only need a page reload.
 - **Uninstall needs one extra step, but it is checked:** `remove_bundle` (or `dsh plugin remove`) clears the dependency and the bundle selection and leaves the `- id: mcp-hub` config row plus the `link:` symlink behind. `node tools/uninstall.mjs` refuses to run while the plugin is still installed, then removes both leftovers and verifies the profile is clean. `--dry-run`, `--keep-config` (keep the server list for a reinstall) and `--run-cli` are supported.
-- Tool-name collisions are not renamed automatically.
+- Tool-name collisions are renamed automatically (`_2`, `_3`, …) and shown in the panel; a name that cannot be freed is reported instead of silently dropped.
+- **Secrets:** header values are plaintext in the profile patch unless you write a Loader expression by hand, for example `Authorization: !!js \`Bearer \${process.env.MCP_TOKEN}\``. The panel preserves such expressions across edits (it re-attaches them from the user layer), but it cannot create them for you.
 
 ## License
 

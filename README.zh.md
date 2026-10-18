@@ -65,6 +65,7 @@ node --import ./test/sdk-hook.mjs test/connect.test.mjs
 node --import ./test/sdk-hook.mjs test/tools.test.mjs
 node test/diagnose.test.mjs
 node test/render.test.mjs
+node test/secrets.test.mjs
 
 # 夹具本身，双传输
 cd mock && PORT=8731 node server.mjs
@@ -86,7 +87,8 @@ DSH_MCP_SDK_BASE=/path/to/@modelcontextprotocol/sdk/dist/esm \
 - **没有 OAuth**：只支持 header token，且 token 会明文落进 profile patch（与上游一致）。
 - **改 host 代码要重启 DSH**：HMR 只监听配置文件，不重载插件模块；只改客户端半边且刷新页面即可。
 - **卸载要多一步，但有校验**：`remove_bundle`（或 `dsh plugin remove`）只清依赖与 bundle 选择，会留下 `- id: mcp-hub` 配置行和 `link:` 符号链接。`node tools/uninstall.mjs` 会在插件仍安装时拒绝执行，之后清掉这两处并**校验** profile 已干净；支持 `--dry-run`、`--keep-config`（保留服务器列表以便重装）、`--run-cli`。
-- 工具名冲突不会自动改名。
+- 工具名冲突会**自动改名**（`_2`、`_3`…）并在面板里显示；实在腾不出名字会报错而不是静默丢弃。
+- **密钥**：header 值默认明文写在 profile patch 里；手写 Loader 表达式可避免，例如 `Authorization: !!js \`Bearer \${process.env.MCP_TOKEN}\``。面板在编辑时会保留这类表达式（从 user 层回填），但目前不能替你创建。
 
 ## 许可证
 

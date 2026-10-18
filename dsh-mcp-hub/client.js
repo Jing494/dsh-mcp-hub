@@ -49,6 +49,8 @@ window.__ModuleLoader__.load({
       whitelist: '工具白名单（留空 = 全开）',
       whitelistSave: '保存白名单',
       whitelistHint: '逗号分隔；保存后重新点「测试」生效',
+      renamed: '工具名冲突，已自动改名',
+      registrationFailed: '工具注册失败',
       edit: '编辑',
       save: '保存',
       cancel: '取消',
@@ -98,6 +100,8 @@ window.__ModuleLoader__.load({
       whitelist: 'Tool allowlist (empty = all)',
       whitelistSave: 'Save allowlist',
       whitelistHint: 'Comma separated; click Test again to apply',
+      renamed: 'Renamed to avoid a tool-name collision',
+      registrationFailed: 'Tool registration failed',
       edit: 'Edit',
       save: 'Save',
       cancel: 'Cancel',
@@ -213,6 +217,28 @@ window.__ModuleLoader__.load({
       return hints.length > 0 ? hints : [t('hintNone')]
     }
 
+    /**
+     * Re-attach header expressions the resolved value cannot carry. `describe()`
+     * returns `value` with `!!js` expressions already evaluated; writing that
+     * back would replace a process.env reference with the secret itself. The
+     * `user` layer keeps expressions whole, so they are copied forward by id.
+     */
+    function preserveExpressions(list, rawServers) {
+      return list.map((server) => {
+        const raw = rawServers.find((candidate) => candidate?.id === server.id)
+        const headers = raw?.headers
+        if (
+          headers !== undefined &&
+          headers !== null &&
+          typeof headers === 'object' &&
+          typeof headers.__jsExpr === 'string'
+        ) {
+          return { ...server, headers }
+        }
+        return server
+      })
+    }
+
     function slug(text) {
       const base = String(text).toLowerCase().replace(/[^a-z0-9_-]+/g, '-').replace(/^-+|-+$/g, '')
       return base === '' ? `server-${Date.now().toString(36)}` : base.slice(0, 32)
@@ -244,6 +270,7 @@ window.__ModuleLoader__.load({
       const [editing, setEditing] = React.useState({})
       const [editError, setEditError] = React.useState(null)
       const [expanded, setExpanded] = React.useState({})
+      const [rawServers, setRawServers] = React.useState([])
 
       // Resolve the settings remote lazily: the client service table may still
       // be filling in while this section registers.
@@ -270,6 +297,8 @@ window.__ModuleLoader__.load({
                 latencyMs: row.latencyMs,
                 tools: row.tools ?? [],
                 serverInfo: row.serverInfo,
+                aliases: row.aliases ?? [],
+                registrationError: row.registrationError,
                 attempts: [],
               }
             } else if (row.status === 'error') {
@@ -310,6 +339,10 @@ window.__ModuleLoader__.load({
           setError(null)
           setServers(Array.isArray(view.value?.servers) ? view.value.servers : [])
           setRevision(view.revision)
+          // `user` is the profile layer: Loader expressions (!!js) stay whole there,
+          // while `value` holds the resolved plaintext. Writing `value` back would
+          // silently replace a `process.env` reference with the secret itself.
+          setRawServers(Array.isArray(view.user?.servers) ? view.user.servers : [])
           // The host owns the live connection state; this page's own test
           // results are only a cache of it. Seed the rows from the host so a
           // freshly opened panel does not report every server as "not connected".
@@ -333,7 +366,7 @@ window.__ModuleLoader__.load({
             setFormError(`${t('saveFailed')}settings remote unavailable`)
             return false
           }
-          const response = await remote.mutate(SETTINGS_NS, [{ op: 'set', path: ['servers'], value: next }], revision)
+          const response = await remote.mutate(SETTINGS_NS, [{ op: 'set', path: ['servers'], value: preserveExpressions(next, rawServers) }], revision)
           if (!response?.ok) {
             setFormError(`${t('saveFailed')}${response?.error?.message ?? 'unknown'}`)
             return false
@@ -693,6 +726,18 @@ window.__ModuleLoader__.load({
           body.push(h('p', { key: 'raw', style: S.error }, `${t('rawError')}:\n${state.error ?? ''}\n${(state.attempts ?? []).map((a) => `${a.transport}: ${a.error}`).join('\n')}`))
         }
 
+        if ((state?.aliases ?? []).length > 0) {
+          body.push(h('div', { key: 'aliases', style: S.stack }, [
+            h('p', { key: 'al', style: S.hint }, t('renamed')),
+            ...state.aliases.map((alias, index) =>
+              h('p', { key: `alias-${index}`, style: S.mono }, `${alias.natural} → ${alias.registered}`)),
+          ]))
+        }
+
+        if (typeof state?.registrationError === 'string' && state.registrationError !== '') {
+          body.push(h('p', { key: 'regerr', style: S.error }, `${t('registrationFailed')}: ${state.registrationError}`))
+        }
+
         body.push(h('div', { key: 'allow', style: S.row }, [
           h('input', {
             key: 'i',
@@ -765,7 +810,7 @@ window.__ModuleLoader__.load({
       // Test seam: the module loader ignores extra keys, and the standalone
       // test suite can exercise the failure-to-cause mapping and render the
       // section with a minimal hook runtime, without a DOM.
-      __test: { diagnose, Section: McpSettingsSection },
+      __test: { diagnose, Section: McpSettingsSection, preserveExpressions },
       // The browser context proxy throws for any service that was not declared
       // here ("cannot get property … without inject"), so `remote` and
       // `remote.settings` are named explicitly.
